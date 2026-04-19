@@ -25,7 +25,7 @@ public class GameController {
         this.score = 0;
 
         // 生成不在蛇身上的食物
-        food.generateNewPosition(snake);
+        food.generateRandomFood(snake);
 
         // 设置面板的蛇和食物
         gamePanel.setSnake(snake);
@@ -56,7 +56,7 @@ public class GameController {
         // 检查是否吃到食物
         if (snake.checkEatFood(food.getPosition())) {
             snake.grow();
-            food.generateNewPosition(snake);
+            food.generateRandomFood(snake);
             score += 10;
         }
 
@@ -98,7 +98,7 @@ public class GameController {
     public void restartGame() {
         timer.stop();
         snake.reset();
-        food.generateNewPosition();
+        food.generateRandomFood();
         score = 0;
         gameStatus = GameStatus.PAUSED;
         scorePanel.updateStatus("准备开始");

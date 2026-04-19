@@ -1,9 +1,13 @@
 package com.snake.game.view;
 
+import com.snake.game.model.Food;
+import com.snake.game.model.FoodType;
 import com.snake.game.model.Point;
 import com.snake.game.model.Snake;
-import com.snake.game.model.Food;
 import com.snake.game.util.Constants;
+import java.awt.*;
+import javax.swing.*;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -91,17 +95,34 @@ public class GamePanel extends JPanel {
     private void drawFood(Graphics g) {
         if (food == null) return;
 
-        g.setColor(Constants.FOOD_COLOR);
+        FoodType type = food.getType();
         int x = food.getX() * Constants.GRID_SIZE;
         int y = food.getY() * Constants.GRID_SIZE;
 
-        // 绘制圆形食物
+        // 根据食物类型设置颜色
+        g.setColor(type.getColor());
+
+        // 绘制食物
         g.fillOval(x, y, Constants.GRID_SIZE, Constants.GRID_SIZE);
 
-        // 绘制食物边框
+        // 绘制边框
         g.setColor(Color.WHITE);
         g.drawOval(x, y, Constants.GRID_SIZE, Constants.GRID_SIZE);
+
+        // 如果是金色食物，绘制星星
+        if (type == FoodType.GOLD) {
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Arial", Font.BOLD, 12));
+            g.drawString("★", x + Constants.GRID_SIZE/2 - 4, y + Constants.GRID_SIZE/2 + 4);
+        }
+        // 如果是炸弹，绘制感叹号
+        else if (type == FoodType.BOMB) {
+            g.setColor(Color.RED);
+            g.setFont(new Font("Arial", Font.BOLD, 12));
+            g.drawString("!", x + Constants.GRID_SIZE/2 - 2, y + Constants.GRID_SIZE/2 + 4);
+        }
     }
+
 
     /**
      * 设置蛇（这是GameController调用的关键方法！）

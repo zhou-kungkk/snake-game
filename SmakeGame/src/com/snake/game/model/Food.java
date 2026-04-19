@@ -4,33 +4,37 @@ import java.util.Random;
 import com.snake.game.util.Constants;
 
 public class Food {
-    private Point position;  // 食物位置
-    private Random random;   // 随机数生成器
+    private Point position;
+    private Random random;
+    private FoodType type;
 
     public Food() {
         random = new Random();
-        generateNewPosition();
+        generateRandomFood();
     }
 
-    /**
-     * 随机生成食物位置
-     */
-    public void generateNewPosition() {
+    public void generateRandomFood() {
         int x = random.nextInt(Constants.GRID_WIDTH);
         int y = random.nextInt(Constants.GRID_HEIGHT);
         position = new Point(x, y);
+
+        // 简单概率：70%普通，20%金色，10%炸弹
+        double rand = random.nextDouble();
+        if (rand < 0.7) {
+            type = FoodType.NORMAL;
+        } else if (rand < 0.9) {
+            type = FoodType.GOLD;
+        } else {
+            type = FoodType.BOMB;
+        }
     }
 
-    /**
-     * 生成不在蛇身上的食物位置
-     */
-    public void generateNewPosition(Snake snake) {
+    public void generateRandomFood(Snake snake) {
         boolean onSnake;
         do {
-            generateNewPosition();
+            generateRandomFood();
             onSnake = false;
 
-            // 检查食物是否生成在蛇身上
             for (Point point : snake.getBody()) {
                 if (point.getX() == position.getX() &&
                         point.getY() == position.getY()) {
@@ -41,24 +45,8 @@ public class Food {
         } while (onSnake);
     }
 
-    /**
-     * 获取食物位置
-     */
-    public Point getPosition() {
-        return position;
-    }
-
-    /**
-     * 获取食物X坐标
-     */
-    public int getX() {
-        return position.getX();
-    }
-
-    /**
-     * 获取食物Y坐标
-     */
-    public int getY() {
-        return position.getY();
-    }
+    public Point getPosition() { return position; }
+    public int getX() { return position.getX(); }
+    public int getY() { return position.getY(); }
+    public FoodType getType() { return type; }
 }
