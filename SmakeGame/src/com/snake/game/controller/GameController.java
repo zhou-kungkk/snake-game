@@ -4,6 +4,17 @@ import com.snake.game.model.*;
 import com.snake.game.view.*;
 import com.snake.game.util.Constants;
 import javax.swing.Timer;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingConstants;
+import javax.swing.JPanel;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.BorderFactory;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.Component;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -52,8 +63,9 @@ public class GameController {
         gamePanel.setSnake(snake);
         gamePanel.setFood(food);
 
-        // 创建游戏循环定时器
-        timer = new Timer(Constants.GAME_SPEED, new ActionListener() {
+        // 创建游戏循环定时器（使用GameConfig中的速度，而不是固定的Constants.GAME_SPEED）
+        int initialSpeed = GameConfig.getInstance().getInitialSpeed();
+        timer = new Timer(initialSpeed, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 gameLoop();
@@ -63,7 +75,7 @@ public class GameController {
         // 初始UI更新
         updateUI();
 
-        System.out.println("游戏控制器初始化完成");
+        System.out.println("游戏控制器初始化完成，初始速度: " + initialSpeed + "ms");
     }
 
     /**
@@ -106,7 +118,7 @@ public class GameController {
             // 在状态栏更新吃了什么食物
             scorePanel.updateStatus("吃到: " + currentFoodType.getName() + " (" + scoreToAdd + "分)");
 
-            // 播放音效（如果有的话）
+            // 播放音效
             playEatSound();
         }
 
@@ -128,7 +140,7 @@ public class GameController {
             gameStatus = GameStatus.RUNNING;
             scorePanel.updateStatus("游戏中");
             timer.start();
-            System.out.println("游戏开始");
+            System.out.println("游戏开始，当前速度: " + timer.getDelay() + "ms");
         }
     }
 
@@ -163,7 +175,7 @@ public class GameController {
     }
 
     /**
-     * 游戏结束
+     * 游戏结束（新增结算界面）
      */
     private void gameOver() {
         gameStatus = GameStatus.GAME_OVER;
@@ -174,6 +186,80 @@ public class GameController {
         playGameOverSound();
 
         System.out.println("游戏结束，最终得分: " + score);
+
+        // === 新增：弹出结算/重新开始对话框 ===
+        // 使用 SwingUtilities.invokeLater 确保在事件分发线程中更新UI
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                // 创建自定义的对话框面板
+                JPanel panel = new JPanel(new BorderLayout(10, 10));
+
+                // 显示游戏结束信息
+                JLabel messageLabel = new JLabel(
+                        "<html><div style='text-align: center;'>" +
+                                "<h2>游戏结束！</h2>" +
+                                "<p>最终得分: <b>" + score + "</b></p>" +
+                                "<p>蛇身长度: <b>" + snake.getBody().size() + "</b></p>" +
+                                "</div></html>",
+                        SwingConstants.CENTER
+                );
+                panel.add(messageLabel, BorderLayout.CENTER);
+
+                // 创建按钮面板
+                JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+                JButton restartButton = new JButton("重新开始 (R)");
+                JButton quitButton = new JButton("退出游戏");
+
+                // 重新开始按钮逻辑
+                restartButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        // 获取对话框的顶层窗口并关闭它
+                        Window dialog = SwingUtilities.getWindowAncestor((Component)e.getSource());
+                        if (dialog != null) {
+                            dialog.dispose();
+                        }
+                        // 调用重新开始游戏的方法
+                        restartGame();
+                    }
+                });
+
+                // 退出按钮逻辑
+                quitButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        Window dialog = SwingUtilities.getWindowAncestor((Component)e.getSource());
+                        if (dialog != null) {
+                            dialog.dispose();
+                        }
+                        // 退出游戏
+                        System.exit(0);
+                    }
+                });
+
+                buttonPanel.add(restartButton);
+                buttonPanel.add(quitButton);
+                panel.add(buttonPanel, BorderLayout.SOUTH);
+                panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+
+                // 显示对话框
+                int option = JOptionPane.showOptionDialog(
+                        gamePanel, // 父组件
+                        panel,     // 消息
+                        "游戏结束", // 标题
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        new Object[]{}, // 不显示默认按钮
+                        null
+                );
+                // 即使点击对话框关闭按钮，也默认重新开始
+                if (option == JOptionPane.CLOSED_OPTION) {
+                    restartGame();
+                }
+            }
+        });
     }
 
     /**
@@ -242,5 +328,23 @@ public class GameController {
      */
     public int getLength() {
         return length;
+    }
+
+    /**
+     * 新增：更新游戏速度（供SettingsPanel调用）
+     */
+    public void updateGameSpeed(int newSpeed) {
+        // 确保速度在合理范围内
+        if (newSpeed < 50) newSpeed = 50;
+        if (newSpeed > 300) newSpeed = 300;
+
+        // 更新定时器的延迟
+        timer.setDelay(newSpeed);
+        timer.setInitialDelay(newSpeed);
+
+        // 保存到配置
+        GameConfig.getInstance().setInitialSpeed(newSpeed);
+
+        System.out.println("游戏速度已更新为: " + newSpeed + "ms");
     }
 }

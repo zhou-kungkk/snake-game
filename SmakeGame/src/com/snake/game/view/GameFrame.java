@@ -3,6 +3,7 @@ package com.snake.game.view;
 import com.snake.game.util.Constants;
 import com.snake.game.controller.KeyController;
 import com.snake.game.controller.GameController;
+import com.snake.game.model.GameStatus;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -12,7 +13,8 @@ public class GameFrame extends JFrame {
     private GamePanel gamePanel;
     private ScorePanel scorePanel;
     private KeyController keyController;
-    private JButton settingsButton; // 新增：设置按钮
+    private JButton settingsButton;
+    private GameController gameController; // 新增：用于控制游戏暂停
 
     public GameFrame() {
         initFrame();
@@ -67,9 +69,15 @@ public class GameFrame extends JFrame {
     }
 
     /**
-     * 打开设置对话框
+     * 打开设置对话框（新增自动暂停功能）
      */
     private void openSettingsDialog() {
+        // 打开设置前，先暂停游戏（如果游戏正在运行）
+        if (gameController != null && gameController.getGameStatus() == GameStatus.RUNNING) {
+            gameController.pauseGame();
+            System.out.println("打开设置，游戏已自动暂停");
+        }
+
         // 创建一个模态对话框
         JDialog settingsDialog = new JDialog(this, "游戏设置", true);
         settingsDialog.setLayout(new BorderLayout());
@@ -79,13 +87,14 @@ public class GameFrame extends JFrame {
         settingsDialog.add(settingsPanel, BorderLayout.CENTER);
 
         // 添加关闭按钮
-        JButton closeButton = new JButton("关闭");
+        JButton closeButton = new JButton("关闭并返回游戏");
         closeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 settingsDialog.dispose();
                 // 关闭对话框后将焦点还给游戏面板
                 gamePanel.requestFocus();
+                // 不自动继续游戏，由玩家自己按空格键继续
             }
         });
         JPanel bottomPanel = new JPanel();
@@ -96,6 +105,8 @@ public class GameFrame extends JFrame {
         settingsDialog.pack();
         settingsDialog.setLocationRelativeTo(this); // 居中显示
         settingsDialog.setVisible(true);
+
+        // 对话框关闭后，焦点自动返回（已在按钮事件中处理）
     }
 
     /**
@@ -139,6 +150,13 @@ public class GameFrame extends JFrame {
 
         // 确保焦点在正确的组件上
         setFocusTraversalKeysEnabled(false);
+    }
+
+    /**
+     * 设置游戏控制器（新增：用于在设置时暂停游戏）
+     */
+    public void setGameController(GameController gameController) {
+        this.gameController = gameController;
     }
 
     /**

@@ -16,10 +16,10 @@ public class SettingsPanel extends JPanel {
     // 皮肤选择组件
     private JComboBox<String> skinComboBox;
     private JCheckBox gridCheckBox;
-    private JCheckBox specialFoodCheckBox;  // 注意：统一使用大写B
-    private JSlider speedSlider;            // 注意：统一使用小写s
-    private JCheckBox soundCheckBox;        // 注意：统一使用大写C
-    private JCheckBox effectsCheckBox;      // 注意：统一使用大写C
+    private JCheckBox specialFoodCheckBox;
+    private JSlider speedSlider;
+    private JCheckBox soundCheckBox;
+    private JCheckBox effectsCheckBox;
 
     public SettingsPanel(GamePanel gamePanel, ScorePanel scorePanel) {
         this.gamePanel = gamePanel;
@@ -62,7 +62,7 @@ public class SettingsPanel extends JPanel {
             }
         });
 
-        // 3. 特殊食物 - 修正：统一变量名大小写
+        // 3. 特殊食物
         specialFoodCheckBox = new JCheckBox("启用特殊食物", GameConfig.getInstance().isEnableSpecialFood());
         specialFoodCheckBox.addActionListener(new ActionListener() {
             @Override
@@ -74,7 +74,7 @@ public class SettingsPanel extends JPanel {
         // 4. 速度控制
         JPanel speedPanel = new JPanel(new BorderLayout());
         speedPanel.add(new JLabel("游戏速度:"), BorderLayout.WEST);
-        // 使用固定值，而不是不存在的常量
+        // 使用固定值
         speedSlider = new JSlider(JSlider.HORIZONTAL, 50, 300, GameConfig.getInstance().getInitialSpeed());
         speedSlider.setMajorTickSpacing(50);
         speedSlider.setMinorTickSpacing(10);
@@ -88,7 +88,7 @@ public class SettingsPanel extends JPanel {
         });
         speedPanel.add(speedSlider, BorderLayout.CENTER);
 
-        // 5. 声音效果 - 修正：统一变量名大小写
+        // 5. 声音效果
         soundCheckBox = new JCheckBox("启用声音", GameConfig.getInstance().isSoundEnabled());
         soundCheckBox.addActionListener(new ActionListener() {
             @Override
@@ -97,7 +97,7 @@ public class SettingsPanel extends JPanel {
             }
         });
 
-        // 6. 视觉效果 - 修正：统一变量名大小写
+        // 6. 视觉效果
         effectsCheckBox = new JCheckBox("启用特效", GameConfig.getInstance().isShowEffects());
         effectsCheckBox.addActionListener(new ActionListener() {
             @Override
@@ -167,7 +167,7 @@ public class SettingsPanel extends JPanel {
     private void updateSpeed() {
         int speed = speedSlider.getValue();
         GameConfig.getInstance().setInitialSpeed(speed);
-        // 注意：需要游戏控制器重新设置定时器速度，此处仅保存配置
+        scorePanel.updateStatus("速度设置将在下次游戏开始时生效: " + speed + "ms");
     }
 
     /**

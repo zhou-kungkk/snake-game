@@ -4,7 +4,7 @@ public class GameConfig {
     private SnakeSkin currentSkin = SnakeSkin.CLASSIC;
     private boolean showGrid = true;
     private boolean enableSpecialFood = true;
-    private int initialSpeed = 150;  // 毫秒
+    private int initialSpeed = 100;  // 修改：从150改为100，提高默认帧率
     private boolean soundEnabled = true;
     private boolean showEffects = true;
 
@@ -43,7 +43,7 @@ public class GameConfig {
         currentSkin = SnakeSkin.CLASSIC;
         showGrid = true;
         enableSpecialFood = true;
-        initialSpeed = 150;
+        initialSpeed = 100;  // 修改：从150改为100
         soundEnabled = true;
         showEffects = true;
     }
